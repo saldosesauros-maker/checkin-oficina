@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Recepção - Credenciamento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { 
+      --verde-escuro: #0F5132;
+      --verde-medio: #198754;
+      --dourado: #D4AF37;
+      --dourado-escuro: #B38F28;
+      --branco: #FFFFFF;
+      --fundo: #F8FAF9;
+      --vermelho: #DC3545;
+      --vermelho-fundo: #F8D7DA;
+      --cinza-texto: #495057;
+      --cinza-borda: #CED4DA;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--fundo); padding: 12px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .container { width: 100%; max-width: 480px; background: var(--branco); border-radius: 12px; box-shadow: 0 8px 24px rgba(15, 81, 50, 0.12); border: 1px solid rgba(212, 175, 55, 0.3); overflow: hidden; display: flex; flex-direction: column; }
+    header { background: var(--verde-escuro); color: var(--branco); padding: 18px 16px; text-align: center; border-bottom: 3px solid var(--dourado); }
+    h1 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 4px; font-weight: 700; color: var(--branco); }
+    header p { font-size: 0.85rem; color: var(--dourado); font-weight: 500; }
+    .content { padding: 18px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+    
+    .scanner-container { width: 100%; max-width: 350px; margin: 0 auto 15px; border-radius: 10px; border: 2px dashed var(--verde-escuro); background: #e8f5e9; overflow: hidden; }
+    #reader { width: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    #reader video { border-radius: 8px; object-fit: cover; }
+    
+    .scan-instruction { text-align: center; font-size: 0.85rem; color: var(--cinza-texto); margin-bottom: 12px; width: 100%; }
+    .resultado { padding: 16px; border-radius: 8px; margin: 12px 0; text-align: center; font-size: 0.95rem; width: 100%; }
+    .sucesso { background: #D1E7DD; border: 2px solid var(--verde-medio); color: var(--verde-escuro); }
+    .erro { background: var(--vermelho-fundo); border: 2px solid var(--vermelho); color: #842029; }
+    .aviso { background: #FFF8E1; border: 2px solid var(--dourado); color: #7D6608; }
+    
+    .info-participante { background: var(--branco); padding: 14px; border-radius: 6px; margin-top: 10px; text-align: left; font-size: 0.9rem; width: 100%; border: 1px solid var(--cinza-borda); }
+    .info-participante h3 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 8px; color: var(--verde-escuro); text-align: center; border-bottom: 1px solid var(--cinza-borda); padding-bottom: 4px; }
+    .info-participante p { margin: 6px 0; color: #333; }
+    .status-liberado { text-align: center; font-weight: 700; font-size: 1.05rem; color: var(--verde-escuro); margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--verde-medio); }
+    
+    .btn { width: 100%; padding: 12px; background: var(--verde-escuro); color: var(--branco); border: none; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-top: 10px; font-weight: 600; transition: background 0.2s; }
+    .btn:hover { background: #0b3d25; }
+    .btn-dourado { background: var(--dourado); color: #000; }
+    .btn-dourado:hover { background: var(--dourado-escuro); }
+    .hidden { display: none !important; }
+    
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.1); border-top-color: var(--verde-escuro); border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .manual-section { margin-top: 10px; padding-top: 16px; border-top: 1px dashed var(--cinza-borda); width: 100%; }
+    .manual-section h3 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 8px; color: var(--verde-escuro); text-align: center; }
+    #protocolo-manual { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid var(--cinza-borda); border-radius: 6px; font-size: 0.95rem; text-align: center; outline: none; }
+    #protocolo-manual:focus { border-color: var(--verde-escuro); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Recepção - Credenciamento</h1>
+      <p>Aponte a câmera para o QR Code</p>
+    </header>
+    
+    <div class="content">
+      <div class="scanner-container">
+        <div id="reader">
+          <div style="padding: 20px; color: var(--verde-escuro); font-weight: bold; text-align: center;">
+            <div class="loading"></div> Iniciando câmera...
+          </div>
+        </div>
+      </div>
+      
+      <p class="scan-instruction" id="instrucao-camera">Câmera ativa. Posicione o QR Code no quadro.</p>
+
+      <div id="resultado" class="resultado hidden">
+        <h2 id="titulo-resultado">Processando...</h2>
+        <div id="mensagem-resultado"></div>
+        <div id="detalhes-participante" class="info-participante hidden"></div>
+        <button class="btn btn-dourado" onclick="iniciarScanner()">Escanear Novo Código</button>
+      </div>
+      
+      <div class="manual-section">
+        <h3>Ou digite o código ID:</h3>
+        <input type="text" id="protocolo-manual" placeholder="Ex: UFAC001C" autocomplete="off">
+        <button class="btn" onclick="verificarManual()">Validar ID Manualmente</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<script>
+let html5QrCode;
+
+document.addEventListener('DOMContentLoaded', () => {
+  iniciarScanner();
+});
+
+function iniciarScanner() {
+  document.getElementById('resultado').classList.add('hidden');
+  document.getElementById('detalhes-participante').classList.add('hidden');
+  
+  if (html5QrCode) {
+    html5QrCode.clear().catch(error => console.log("Limpando scanner prévio..."));
+  }
+  
+  html5QrCode = new Html5Qrcode("reader");
+  const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+
+  html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+    .catch((err) => {
+      document.getElementById('reader').innerHTML = `
+        <div style="padding: 15px; text-align: center; color: var(--vermelho);">
+          ❌ Permita o acesso à câmera no seu navegador.
+        </div>`;
+    });
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      document.getElementById('reader').innerHTML = '<div style="padding: 20px; color: var(--verde-escuro); font-weight: bold; text-align: center;">✅ Código capturado!</div>';
+      processarCheckinBackend(decodedText.trim());
+    }).catch(err => {
+      processarCheckinBackend(decodedText.trim());
+    });
+  }
+}
+
+function onScanFailure(error) {
+  // Ignora frames sem QR Code
+}
+
+function processarCheckinBackend(idScaneado) {
+  const resultado = document.getElementById('resultado');
+  const titulo = document.getElementById('titulo-resultado');
+  const mensagem = document.getElementById('mensagem-resultado');
+  const detalhes = document.getElementById('detalhes-participante');
+  
+  resultado.classList.remove('hidden');
+  resultado.className = 'resultado aviso';
+  titulo.textContent = '⏳ Processando...';
+  mensagem.innerHTML = '<div class="loading"></div> Conectando ao sistema...';
+  detalhes.classList.add('hidden');
+  
+  // ========================================================
+  // COLE O LINK DO SEU WEB APP GERADO NO PASSO 1 ABAIXO
+  // ========================================================
+  const WEB_APP_URL = "COLE_AQUI_O_LINK_DO_SEU_WEB_APP";
+  
+  const endpoint = WEB_APP_URL + "?action=realizarCheckin&protocolo=" + encodeURIComponent(idScaneado);
+  
+  fetch(endpoint)
+    .then(response => response.json())
+    .then(res => {
+      if (res.success) {
+        if (res.jaRegistrado) {
+          resultado.className = 'resultado aviso';
+          titulo.textContent = '⚠️ JÁ REGISTRADO';
+          mensagem.innerHTML = `<p style="font-size:0.9rem; margin-top:4px;">${res.message}</p>`;
+        } else {
+          resultado.className = 'resultado sucesso';
+          titulo.textContent = '✅ CHECK-IN REALIZADO';
+          mensagem.innerHTML = `<p style="font-size:0.9rem; margin-top:4px;">${res.message}</p>`;
+        }
+        
+        detalhes.classList.remove('hidden');
+        detalhes.innerHTML = `
+          <h3>DADOS DO PARTICIPANTE</h3>
+          <p><strong>Nome:</strong> ${res.nome}</p>
+          <p><strong>Modalidade:</strong> ${res.tipoVaga}</p>
+          ${!res.jaRegistrado ? '<div class="status-liberado">LIBERE A ENTRADA</div>' : ''}
+        `;
+      } else {
+        resultado.className = 'resultado erro';
+        titulo.textContent = '❌ NÃO CADASTRADO';
+        mensagem.innerHTML = `<p style="font-size:0.95rem; font-weight:bold; margin-top:6px;">${res.message || 'ID não encontrado'}</p>`;
+      }
+    })
+    .catch(error => {
+      resultado.className = 'resultado erro';
+      titulo.textContent = '❌ ERRO DE CONEXÃO';
+      mensagem.innerHTML = `<p style="font-size:0.85rem; margin-top:4px;">Não foi possível acessar a planilha.</p>`;
+    });
+}
+
+function verificarManual() {
+  const protocolo = document.getElementById('protocolo-manual').value.trim();
+  if (protocolo) {
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().then(() => processarCheckinBackend(protocolo));
+    } else {
+      processarCheckinBackend(protocolo);
+    }
+    document.getElementById('protocolo-manual').value = '';
+  } else {
+    alert('Digite um código de protocolo válido.');
+  }
+}
+
+document.getElementById('protocolo-manual').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') verificarManual();
+});
+</script>
+</body>
+</html>
